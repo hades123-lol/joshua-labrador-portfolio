@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Joshua Labrador is a beginner web developer open to small project inquiries: landing pages, personal sites, and website fixes.">
+  <title>Joshua Labrador | Web Developer</title>
+  <link rel="icon" href="profile.jpg">
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||"light"}catch(e){}document.documentElement.classList.add("js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){var d=document.documentElement;d.classList.add("intro","intro-on");setTimeout(function(){d.classList.remove("intro")},7000);setTimeout(function(){d.classList.remove("intro-on")},8000)}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js" defer></script>
+</head>
+<body>
+  <div id="intro" aria-hidden="true">
+    <div class="it-shutters"><i style="--n:0"></i><i style="--n:1"></i><i style="--n:2"></i><i style="--n:3"></i><i style="--n:4"></i><i style="--n:5"></i></div>
+    <canvas id="rain"></canvas>
+    <div class="it-shade"></div>
+    <div class="it-hud mono"><i></i><i></i><i></i><i></i></div>
+    <pre class="it-log" id="it-log"></pre>
+    <div class="intro-core">
+      <p class="mono intro-tag">portfolio 2026 / <span id="it-state">loading</span></p>
+      <p class="intro-name" id="intro-name">HADES</p>
+      <div class="intro-bar"><i></i></div>
+      <div class="intro-meta mono"><span id="intro-pct">0%</span><span>@hades123-lol</span></div>
+    </div>
+    <p class="it-skip mono">click or press any key to skip</p>
+    <div class="it-flash"></div>
+  </div>
+  <a class="skip" href="#about">Skip to content</a>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-html" viewBox="0 0 128 128"><path fill="#E44D26" d="M19 114 9 2h110l-10 112-45 12z"/><path fill="#F16529" d="M64 117l36-10 9-96H64z"/><path fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" d="M90 30H40l3 26h45l-3 32-21 7-21-7-1-11"/></symbol>
+<symbol id="i-css" viewBox="0 0 128 128"><path fill="#1572B6" d="M19 114 9 2h110l-10 112-45 12z"/><path fill="#33A9DC" d="M64 117l36-10 9-96H64z"/><path fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" d="M42 30h46L68 57q20-1 19 17-1 18-44 14"/></symbol>
+<symbol id="i-js" viewBox="0 0 128 128"><rect width="128" height="128" rx="14" fill="#F7DF1E"/><text x="116" y="116" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="58" fill="#222">JS</text></symbol>
+<symbol id="i-react" viewBox="0 0 128 128"><g fill="none" stroke="#61DAFB" stroke-width="6"><ellipse cx="64" cy="64" rx="54" ry="21"/><ellipse cx="64" cy="64" rx="54" ry="21" transform="rotate(60 64 64)"/><ellipse cx="64" cy="64" rx="54" ry="21" transform="rotate(120 64 64)"/></g><circle cx="64" cy="64" r="10" fill="#61DAFB"/></symbol>
+<symbol id="i-python" viewBox="0 0 128 128"><path fill="#3776AB" d="M63.4 2c-4.2 0-8.3.4-11.8 1-10.5 1.8-12.3 5.7-12.3 12.8v9.4H64v3.1H30c-7.2 0-13.5 4.3-15.4 12.5-2.3 9.4-2.4 15.3 0 25.1 1.8 7.3 5.9 12.5 13.1 12.5h8.5V67.200c0-8.200 7.100-15.300 15.400-15.300h24.700c6.900 0 12.300-5.700 12.300-12.500V15.800c0-6.700-5.600-11.700-12.300-12.800C72.100 2.300 67.700 2 63.400 2zM50 9.600c2.600 0 4.600 2.100 4.600 4.700s-2.100 4.700-4.600 4.700c-2.600 0-4.600-2.100-4.600-4.700S47.400 9.600 50 9.600z"/><path fill="#FFD43B" d="M91.700 28.400v11c0 8.500-7.200 15.700-15.400 15.700H51.600c-6.800 0-12.300 5.800-12.300 12.500v23.500c0 6.700 5.800 10.600 12.300 12.500 7.800 2.300 15.300 2.700 24.700 0 6.200-1.800 12.300-5.400 12.300-12.500v-9.400H63.900v-3.100h37c7.200 0 9.900-5 12.300-12.500 2.600-7.700 2.500-15.200 0-25.100-1.800-7.100-5.200-12.500-12.300-12.500h-9.200zM77.800 87.900c2.600 0 4.600 2.100 4.600 4.700s-2.100 4.700-4.600 4.700c-2.600 0-4.600-2.100-4.600-4.700s2.100-4.700 4.600-4.700z"/></symbol>
+<symbol id="i-java" viewBox="0 0 128 128"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"><path stroke="#E76F00" d="M52 8c-12 12 8 20-1 32M72 16c-9 9 6 15-1 26"/><path stroke="#5382A1" d="M84 66h6c9 0 13 5 13 11s-4 11-13 11h-8M16 116q39 12 78 0"/></g><path fill="#5382A1" d="M26 58h58v22c0 18-12 30-29 30S26 98 26 80z"/></symbol>
+<symbol id="i-hi" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v11H9l-5 4z"/></symbol>
+</defs></svg>
+<canvas id="matrix" aria-hidden="true"></canvas><canvas id="glow" aria-hidden="true"></canvas>
+  <div class="progress" aria-hidden="true"></div>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="logo" href="#home" aria-label="Joshua, back to top">J</a>
+      <div class="nav-links" id="nav-links">
+        <a href="#home">Home</a><a href="#about">About</a><a href="#skills">Skills</a><a href="#services">Services</a><a href="#work">Work</a><a href="#contact">Contact</a>
+      </div>
+      <button class="pill" id="theme" type="button"><span class="half" aria-hidden="true"></span><span id="theme-label">Dark</span></button>
+      <button class="pill menu-btn" id="menu" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap" id="home">
+      <div class="hero-copy">
+        <p class="mono tag">Portfolio 2026 / @hades123-lol</p>
+        <h1><span class="line"><span>Joshua</span></span><span class="line"><span>Labrador</span></span></h1>
+        <p class="role">A <em id="role">Front-end Builder</em></p>
+        <p class="hero-intro">I build with HTML, CSS, JavaScript, and React, and I also code in Python and Java. I’m just getting started, and I’m open to small projects: landing pages, personal sites, and website fixes.</p>
+        <div class="actions">
+          <a class="pill pill-solid big" href="#contact">Send an inquiry</a>
+          <a class="pill big" href="#work">See my work</a>
+          <a class="pill big" href="https://github.com/hades123-lol" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+        <p class="mono status"><span><i class="dot"></i>Open for small projects</span><span>Beginner, learning fast</span></p>
+      </div>
+      <figure class="card-wrap"><span class="fb fb-html" style="--d:0s" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg></span><span class="fb fb-css" style="--d:-1.5s" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg></span><span class="fb fb-js" style="--d:-3s" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></span><span class="fb fb-react" style="--d:-4.5s" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg></span>
+        <div class="pcard" id="pcard">
+          <div class="pcard-top mono"><span>joshua.labrador</span><span id="p-hint">hover me</span></div>
+          <div class="pimg" id="pimg" role="button" tabindex="0" aria-pressed="false" aria-label="Toggle Hades mode on the portrait">
+            <img src="profile.jpg" alt="Joshua as a LEGO minifigure with short dark hair and a calm smile" width="736" height="736">
+            <div class="alt" aria-hidden="true">
+              <img id="alt-img" src="profile.jpg" alt="" width="736" height="736">
+              <canvas id="alt-fx"></canvas>
+              <span class="alt-tag mono">Hades mode</span>
+            </div>
+            <i class="lens" aria-hidden="true"></i>
+          </div>
+          <div class="pcard-bottom"><i class="dot"></i>Open for small projects</div>
+        </div>
+      </figure>
+    </section>
+
+    <div class="strip" aria-hidden="true"><div class="strip-track "><span style="--c:#E44D26"><b><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg></b>HTML</span><span style="--c:#1572B6"><b><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg></b>CSS</span><span style="--c:#F7DF1E"><b><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></b>JavaScript</span><span style="--c:#61DAFB"><b><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg></b>React</span><span style="--c:#3776AB"><b><svg class="lg" aria-hidden="true"><use href="#i-python"/></svg></b>Python</span><span style="--c:#E76F00"><b><svg class="lg" aria-hidden="true"><use href="#i-java"/></svg></b>Java</span><span style="--c:rgb(var(--hot))"><b><svg class="lg" aria-hidden="true"><use href="#i-hi"/></svg></b>Small projects welcome</span></div><div class="strip-track rev"><span style="--c:#E76F00"><b><svg class="lg" aria-hidden="true"><use href="#i-java"/></svg></b>Java</span><span style="--c:#3776AB"><b><svg class="lg" aria-hidden="true"><use href="#i-python"/></svg></b>Python</span><span style="--c:#61DAFB"><b><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg></b>React</span><span style="--c:#F7DF1E"><b><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></b>JavaScript</span><span style="--c:#1572B6"><b><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg></b>CSS</span><span style="--c:#E44D26"><b><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg></b>HTML</span><span style="--c:rgb(var(--hot))"><b><svg class="lg" aria-hidden="true"><use href="#i-hi"/></svg></b>Open for inquiries</span></div></div>
+
+    <section class="about wrap" id="about">
+      <p class="mono kicker">01 / About</p>
+      <h2 data-reveal>Beginner, <em>not careless.</em></h2>
+      <div class="about-grid">
+        <div class="about-copy">
+          <p class="about-lead">I’m Joshua, a developer at the start of my journey. I learn by building real things, and this site is one of them.</p>
+          <p>I won’t pretend I know everything. What I do promise:</p>
+          <ul class="promises"><li style="--i:0"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></span><div><b>I ask when I’m unsure</b><span>No guessing on your project.</span></div></li><li style="--i:1"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></span><div><b>I finish what I start</b><span>Small or not, it gets done.</span></div></li><li style="--i:2"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4h-4"/></svg></span><div><b>I keep you updated</b><span>You’ll know where things stand.</span></div></li></ul>
+        </div>
+        <div class="about-side">
+          <div class="code"><div class="code-bar"><i></i><i></i><i></i><span class="mono">joshua.js</span><em class="mono"><u class="dot"></u>open</em></div><pre><code><span class="ln" style="--i:0"><span class="c">// beginner, not careless</span></span><span class="ln" style="--i:1"><span class="k">const</span> joshua <span class="p">=</span> {</span><span class="ln" style="--i:2">  role<span class="p">:</span> <span class="s">"Front-end Builder"</span>,</span><span class="ln" style="--i:3">  stack<span class="p">:</span> [<span class="s">"HTML"</span>, <span class="s">"CSS"</span>, <span class="s">"JavaScript"</span>, <span class="s">"React"</span>],</span><span class="ln" style="--i:4">  alsoCodes<span class="p">:</span> [<span class="s">"Python"</span>, <span class="s">"Java"</span>],</span><span class="ln" style="--i:5">  status<span class="p">:</span> <span class="s">"Open for small projects"</span>,</span><span class="ln" style="--i:6">  promise<span class="p">:</span> <span class="s">"I finish what I start"</span>,</span><span class="ln" style="--i:7">};<span class="caret"></span></span></code></pre></div>
+          <div class="soc-wrap"><h3 class="mono">Find me online</h3><div class="soc"><a href="https://github.com/hades123-lol" target="_blank" rel="noopener noreferrer"><b>GitHub</b><span>@hades123-lol</span><i aria-hidden="true">↗</i></a><a href="https://www.linkedin.com/in/joshua-labrador-64097543b/" target="_blank" rel="noopener noreferrer"><b>LinkedIn</b><span>Joshua Labrador</span><i aria-hidden="true">↗</i></a><a href="https://www.facebook.com/share/1A2Desopjm/" target="_blank" rel="noopener noreferrer"><b>Facebook</b><span>View profile</span><i aria-hidden="true">↗</i></a><a href="https://www.instagram.com/wtdhkt?dmpr=OGRraW1rNzl6bDl2" target="_blank" rel="noopener noreferrer"><b>Instagram</b><span>@wtdhkt</span><i aria-hidden="true">↗</i></a></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="skills wrap" id="skills">
+      <p class="mono kicker">02 / Tech stack</p>
+      <h2 data-reveal>Tools &amp; <em>languages</em> I code with</h2>
+      <div class="sk-tools">
+        <div class="filters" role="group" aria-label="Filter skills">
+          <button class="chip on" type="button" data-f="all" aria-pressed="true">All<sup>6</sup></button>
+          <button class="chip" type="button" data-f="front" aria-pressed="false">Front-end<sup>4</sup></button>
+          <button class="chip" type="button" data-f="lang" aria-pressed="false">Languages<sup>2</sup></button>
+        </div>
+        <p class="sk-term" aria-hidden="true"><b>hades@portfolio</b><span>:~$</span> <span id="sk-cmd">ls ./skills --all</span><i class="sk-cur"></i><em id="sk-count">6 files</em></p>
+      </div>
+      <ul class="skill-grid">
+        <li class="skill spot" data-cat="front" style="--i:0;--c:#E44D26">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>index.html</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="k">&lt;main&gt;</i></span><span class="cl" style="--n:1">  <i class="k">&lt;h1&gt;</i>Hello, world<i class="k">&lt;/h1&gt;</i></span><span class="cl" style="--n:2">  <i class="k">&lt;p&gt;</i>Clean pages<i class="k">&lt;/p&gt;</i></span><span class="cl" style="--n:3"><i class="k">&lt;/main&gt;</i></span><span class="cl" style="--n:4"><i class="m">&lt;!-- structure --&gt;</i></span></code></pre>
+            <div class="sk-out"><b>›</b><span>rendered: Hello, world</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg></span>
+            <span class="mono cat">Front-end</span>
+            <h3>HTML</h3>
+            <p>The structure behind every page I build, written to be clean and readable.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-html"/></svg>
+          </div>
+        </li>
+        <li class="skill spot" data-cat="front" style="--i:1;--c:#1572B6">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>style.css</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="f">.card</i> {</span><span class="cl" style="--n:1">  <i class="k">display</i>: <i class="s">grid</i>;</span><span class="cl" style="--n:2">  <i class="k">gap</i>: <i class="s">1rem</i>;</span><span class="cl" style="--n:3">  <i class="k">transition</i>: <i class="s">.3s</i>;</span><span class="cl" style="--n:4">}</span></code></pre>
+            <div class="sk-out"><b>›</b><span>layout: responsive</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg></span>
+            <span class="mono cat">Front-end</span>
+            <h3>CSS</h3>
+            <p>Layouts that work on any screen, plus the animations you see on this page.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-css"/></svg>
+          </div>
+        </li>
+        <li class="skill spot" data-cat="front" style="--i:2;--c:#F7DF1E">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>app.js</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="f">button</i>.onclick = () =&gt; {</span><span class="cl" style="--n:1">  <i class="k">const</i> next = <i class="f">flip</i>(theme);</span><span class="cl" style="--n:2">  <i class="f">apply</i>(next);</span><span class="cl" style="--n:3">  <i class="f">save</i>(<i class="s">"theme"</i>, next);</span><span class="cl" style="--n:4">};</span></code></pre>
+            <div class="sk-out"><b>›</b><span>theme saved</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></span>
+            <span class="mono cat">Front-end</span>
+            <h3>JavaScript</h3>
+            <p>Interactivity: the theme switch, menu, filters, and effects on this site.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-js"/></svg>
+          </div>
+        </li>
+        <li class="skill spot" data-cat="front" style="--i:0;--c:#61DAFB">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>App.jsx</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="k">function</i> <i class="f">App</i>() {</span><span class="cl" style="--n:1">  <i class="k">const</i> [n] = <i class="f">useState</i>(<i class="s">0</i>);</span><span class="cl" style="--n:2">  <i class="k">return</i> &lt;<i class="f">Card</i> count={n} /&gt;;</span><span class="cl" style="--n:3">}</span><span class="cl" style="--n:4"><i class="k">export default</i> App;</span></code></pre>
+            <div class="sk-out"><b>›</b><span>&lt;Card /&gt; mounted</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg></span>
+            <span class="mono cat">Front-end</span>
+            <h3>React</h3>
+            <p>Building interfaces out of reusable components.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-react"/></svg>
+          </div>
+        </li>
+        <li class="skill spot" data-cat="lang" style="--i:1;--c:#3776AB">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>main.py</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="k">def</i> <i class="f">greet</i>(name):</span><span class="cl" style="--n:1">    <i class="k">return</i> <i class="s">f"Hi {name}"</i></span><span class="cl" style="--n:2"></span><span class="cl" style="--n:3"><i class="m"># small scripts</i></span><span class="cl" style="--n:4"><i class="f">print</i>(<i class="f">greet</i>(<i class="s">"Hades"</i>))</span></code></pre>
+            <div class="sk-out"><b>›</b><span>Hi Hades</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-python"/></svg></span>
+            <span class="mono cat">Language</span>
+            <h3>Python</h3>
+            <p>Scripts and small programs.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-python"/></svg>
+          </div>
+        </li>
+        <li class="skill spot" data-cat="lang" style="--i:2;--c:#E76F00">
+          <div class="sk-win" aria-hidden="true">
+            <div class="sk-bar mono"><i></i><i></i><i></i><span>Main.java</span></div>
+            <pre class="sk-code"><code><span class="cl" style="--n:0"><i class="k">public class</i> <i class="f">Main</i> {</span><span class="cl" style="--n:1">  <i class="k">static void</i> <i class="f">greet</i>(String n) {</span><span class="cl" style="--n:2">    System.out.<i class="f">println</i>(<i class="s">"Hi "</i> + n);</span><span class="cl" style="--n:3">  }</span><span class="cl" style="--n:4">}</span></code></pre>
+            <div class="sk-out"><b>›</b><span>greet("Hades") → Hi Hades</span></div>
+          </div>
+          <div class="sk-body">
+            <span class="ico"><svg class="lg" aria-hidden="true"><use href="#i-java"/></svg></span>
+            <span class="mono cat">Language</span>
+            <h3>Java</h3>
+            <p>Object-oriented programming.</p>
+            <svg class="lg sk-mark" aria-hidden="true"><use href="#i-java"/></svg>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="services wrap" id="services">
+      <div class="svc">
+        <div class="svc-intro">
+          <p class="mono kicker">03 / Services</p>
+          <h2 data-reveal>Small projects I can <em>take on</em></h2>
+          <p class="lead">Not sure if your idea is too big for me? Message me anyway. I’ll tell you honestly what I can and can’t do.</p>
+          <a class="pill pill-solid big" data-inquiry="Project inquiry" href="mailto:joshualabrador768@gmail.com?subject=Project%20inquiry">Start a project ↗</a>
+        </div>
+        <ul class="rows"><li class="row" style="--c:#E44D26"><button class="row-btn" type="button" aria-expanded="false"><span class="row-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h5"/></svg></span><span class="row-tx"><span class="row-title">Landing <em>pages</em></span><span class="row-sub">Events, products, small businesses</span></span><span class="stack" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></span><span class="plus" aria-hidden="true"></span></button><div class="row-body"><div class="row-in"><div><p>One-page sites for an event, a product, or a small business. Clean, fast, and good on phones.</p><a class="ask pill" data-inquiry="Landing page inquiry" href="mailto:joshualabrador768@gmail.com?subject=Landing%20page%20inquiry">Ask about this ↗</a></div><div class="vis-wrap"><svg class="vis" viewBox="0 0 220 150" aria-hidden="true"><rect class="f" x="6" y="6" width="208" height="138" rx="14"/><circle class="t" cx="22" cy="21" r="3.5"/><circle class="t" cx="34" cy="21" r="3.5"/><circle class="t" cx="46" cy="21" r="3.5"/><rect class="s a" style="--k:0" x="26" y="52" width="120" height="12" rx="6"/><rect class="t a" style="--k:1" x="26" y="74" width="160" height="7" rx="3.5"/><rect class="t a" style="--k:2" x="26" y="88" width="130" height="7" rx="3.5"/><rect class="s a" style="--k:3" x="26" y="108" width="56" height="20" rx="10"/></svg></div></div></div></li><li class="row" style="--c:#1572B6"><button class="row-btn" type="button" aria-expanded="false"><span class="row-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg></span><span class="row-tx"><span class="row-title">Personal <em>sites</em></span><span class="row-sub">Portfolios and personal pages</span></span><span class="stack" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></span><span class="plus" aria-hidden="true"></span></button><div class="row-body"><div class="row-in"><div><p>A portfolio or personal page that shows who you are and what you’ve done.</p><a class="ask pill" data-inquiry="Personal site inquiry" href="mailto:joshualabrador768@gmail.com?subject=Personal%20site%20inquiry">Ask about this ↗</a></div><div class="vis-wrap"><svg class="vis" viewBox="0 0 220 150" aria-hidden="true"><rect class="f" x="6" y="6" width="208" height="138" rx="14"/><circle class="s a" style="--k:0" cx="44" cy="50" r="18"/><rect class="s a" style="--k:1" x="74" y="40" width="96" height="10" rx="5"/><rect class="t a" style="--k:2" x="74" y="58" width="64" height="7" rx="3.5"/><rect class="t a" style="--k:3" x="26" y="92" width="50" height="38" rx="8"/><rect class="t a" style="--k:4" x="84" y="92" width="50" height="38" rx="8"/><rect class="t a" style="--k:5" x="142" y="92" width="50" height="38" rx="8"/></svg></div></div></div></li><li class="row" style="--c:#8B5CF6"><button class="row-btn" type="button" aria-expanded="false"><span class="row-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span class="row-tx"><span class="row-title">Fixes &amp; <em>tweaks</em></span><span class="row-sub">Layout bugs, mobile issues, small changes</span></span><span class="stack" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></span><span class="plus" aria-hidden="true"></span></button><div class="row-body"><div class="row-in"><div><p>Layout bugs, mobile problems, or small changes to a site you already have.</p><a class="ask pill" data-inquiry="Fix or tweak inquiry" href="mailto:joshualabrador768@gmail.com?subject=Fix%20or%20tweak%20inquiry">Ask about this ↗</a></div><div class="vis-wrap"><svg class="vis" viewBox="0 0 220 150" aria-hidden="true"><rect class="f" x="6" y="6" width="208" height="138" rx="14"/><rect class="t" x="30" y="36" width="160" height="18" rx="9"/><rect class="s off" x="30" y="66" width="160" height="18" rx="9"/><rect class="t" x="30" y="96" width="160" height="18" rx="9"/></svg></div></div></div></li><li class="row" style="--c:#0891B2"><button class="row-btn" type="button" aria-expanded="false"><span class="row-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg></span><span class="row-tx"><span class="row-title">Design to <em>code</em></span><span class="row-sub">From mockup or sketch to a working page</span></span><span class="stack" aria-hidden="true"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg></span><span class="plus" aria-hidden="true"></span></button><div class="row-body"><div class="row-in"><div><p>You have a mockup or a sketch. I’ll build it as a working page.</p><a class="ask pill" data-inquiry="Design to code inquiry" href="mailto:joshualabrador768@gmail.com?subject=Design%20to%20code%20inquiry">Ask about this ↗</a></div><div class="vis-wrap"><svg class="vis" viewBox="0 0 220 150" aria-hidden="true"><rect class="dash" x="12" y="26" width="76" height="98" rx="10"/><rect class="dash" x="24" y="40" width="52" height="10" rx="5"/><rect class="dash" x="24" y="62" width="52" height="30" rx="6"/><path d="M99 75h22m-7-7 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect class="f" x="132" y="26" width="76" height="98" rx="10"/><rect class="s a" style="--k:0" x="144" y="40" width="52" height="10" rx="5"/><rect class="t a" style="--k:1" x="144" y="62" width="52" height="30" rx="6"/></svg></div></div></div></li></ul>
+      </div>
+    </section>
+
+    <section class="work wrap" id="work">
+      <p class="mono kicker">04 / Work</p>
+      <h2 data-reveal>Stuff I’ve <em>built</em></h2>
+      <div class="work-grid">
+        <div class="work-empty">
+          <p class="empty-big">No projects <em>currently.</em></p>
+          <p class="lead">My first projects will show up here. Until then, you can follow what I’m building on GitHub.</p>
+          <a class="pill big" href="https://github.com/hades123-lol" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <p class="mono hint">Click a card to open it</p>
+        </div>
+        <div class="deck">
+          <div class="dcard" role="button" tabindex="0" data-p="0" aria-label="View project 1" style="--d:0;--x:-34px;--y:-14px;--rot:-5deg;--hx:-78px;--hy:-56px;--hr:-11deg"><div class="dc-top mono"><span>Project 01</span><span>Coming soon</span></div><div class="dc-vis"><span></span></div><div class="dc-l"></div><div class="dc-l s"></div><div class="dc-tags"><svg class="lg" aria-hidden="true"><use href="#i-html"/></svg><svg class="lg" aria-hidden="true"><use href="#i-css"/></svg></div></div><div class="dcard" role="button" tabindex="0" data-p="1" aria-label="View project 2" style="--d:1;--x:0px;--y:-30px;--rot:0deg;--hx:0px;--hy:-80px;--hr:0deg"><div class="dc-top mono"><span>Project 02</span><span>Coming soon</span></div><div class="dc-vis"><span></span></div><div class="dc-l"></div><div class="dc-l s"></div><div class="dc-tags"><svg class="lg" aria-hidden="true"><use href="#i-react"/></svg><svg class="lg" aria-hidden="true"><use href="#i-js"/></svg></div></div><div class="dcard" role="button" tabindex="0" data-p="2" aria-label="View project 3" style="--d:2;--x:34px;--y:-14px;--rot:5deg;--hx:78px;--hy:-56px;--hr:11deg"><div class="dc-top mono"><span>Project 03</span><span>Coming soon</span></div><div class="dc-vis"><span></span></div><div class="dc-l"></div><div class="dc-l s"></div><div class="dc-tags"><svg class="lg" aria-hidden="true"><use href="#i-python"/></svg></div></div>
+          <div class="tray"><span class="mono">Projects</span><span class="mono"><i class="dot"></i>Empty for now</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact wrap" id="contact">
+      <div class="contact-panel spot">
+        <div class="cp-glow" aria-hidden="true"><i></i><i></i></div>
+        <div class="contact-main">
+          <p class="mono kicker">05 / Contact</p>
+          <h2 class="big-h" data-reveal>Got a small <em>project?</em></h2>
+          <p class="lead">Send me a message with the details. I reply as soon as I can.</p>
+          <a class="mail-addr" id="mail" data-inquiry="Project inquiry" href="mailto:joshualabrador768@gmail.com?subject=Project%20inquiry">joshualabrador768<wbr>@gmail.com</a>
+          <div class="actions"><button class="pill big" id="copy" type="button">Copy email</button><span id="copy-status" role="status" aria-live="polite"></span></div>
+        </div>
+        <div class="contact-side">
+          <div class="include"><h3 class="mono">Please include</h3><ul class="brief"><li class="field"><span class="mono">What</span><b>What you need built</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></li><li class="field"><span class="mono">When</span><b>When you need it</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></li><li class="field"><span class="mono">Budget</span><b>Even a rough range</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></li></ul></div>
+          <div class="include"><h3 class="mono">What happens next</h3><ol class="steps"><li><div><b>You send the details</b><span>What, when, and your budget.</span></div></li><li><div><b>I reply honestly</b><span>I tell you what I can and can’t do.</span></div></li><li><div><b>I build and keep you updated</b><span>You see progress along the way.</span></div></li></ol></div>
+        </div>
+        <div class="cp-marq" aria-hidden="true"><span>Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • </span><span>Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • Let’s build something together • </span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer wrap">
+    <p>Built by hand by Joshua Labrador. © <span id="year"></span></p>
+    <a href="#home">Back to top ↑</a>
+  </footer>
+<dialog class="dlg" id="inquiry" aria-labelledby="dlg-title">
+    <form method="dialog" class="dlg-in">
+      <button class="dlg-x" aria-label="Close">×</button>
+      <p class="mono kicker">Send an inquiry</p>
+      <h3 id="dlg-title">How do you want to <em>reach me?</em></h3>
+      <p class="dlg-sub" id="dlg-sub"></p>
+      <div class="dlg-opts">
+        <a class="dopt" id="d-gmail" target="_blank" rel="noopener noreferrer" href="#"><b>Open Gmail</b><span>Writes the draft for you</span></a>
+        <a class="dopt" id="d-mail" href="#"><b>Open mail app</b><span>Outlook, Apple Mail, and others</span></a>
+        <button class="dopt" id="d-copy" type="button"><b>Copy email</b><span>joshualabrador768@gmail.com</span></button>
+      </div>
+      <p id="d-note" role="status" aria-live="polite"></p>
+    </form>
+  </dialog>
+<dialog class="dlg viewer" id="viewer" aria-labelledby="v-title">
+    <form method="dialog" class="dlg-in">
+      <button class="dlg-x" aria-label="Close">×</button>
+      <div class="v-vis" id="v-vis"><span></span></div>
+      <div class="v-head"><p class="mono kicker" id="v-count"></p><span class="chip-st mono" id="v-status"></span></div>
+      <h3 id="v-title"></h3>
+      <p class="dlg-sub" id="v-desc"></p>
+      <div class="v-tags" id="v-tags"></div>
+      <div class="v-links" id="v-links"></div>
+      <div class="v-nav"><button type="button" class="pill" id="v-prev">← Prev</button><button type="button" class="pill" id="v-next">Next →</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
