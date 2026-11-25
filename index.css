@@ -613,3 +613,112 @@ html.intro :where(main, header, footer) * { animation-play-state: paused !import
 .pimg.full :is(.alt, .lens) { --r: 600px; }
 .pimg.full .lens { opacity: 0; }
 @media (max-width: 720px) { .pimg.on :is(.alt, .lens) { --r: 76px; } .pimg.full :is(.alt, .lens) { --r: 600px; } }
+
+/* ---------- Hades mode upgrade ---------- */
+.pcard { transition: transform .3s ease-out, border-color .4s, box-shadow .4s; }
+.pcard:has(.pimg.full) { border-color: rgba(255,110,60,.55); animation: hBurn 2.4s ease-in-out infinite alternate; }
+@keyframes hBurn { from { box-shadow: 0 0 0 1px rgba(255,90,40,.2), 0 20px 60px -22px rgba(255,80,30,.4); } to { box-shadow: 0 0 0 1px rgba(255,90,40,.35), 0 28px 90px -16px rgba(255,80,30,.75); } }
+.pimg:focus-visible { outline: 2px solid rgb(255,120,60); outline-offset: 3px; }
+/* scanlines + dark vignette over the Hades layer */
+.alt::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(120% 90% at 50% 45%, transparent 52%, rgba(20,2,2,.78)), repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px); }
+/* the portrait flickers like it's lit by fire */
+.alt > img { animation: hFlick 3.4s steps(1) infinite; }
+@keyframes hFlick { 0% { filter: grayscale(1) contrast(1.45) brightness(.9); } 12% { filter: grayscale(1) contrast(1.5) brightness(.76); } 14% { filter: grayscale(1) contrast(1.45) brightness(.95); } 58% { filter: grayscale(1) contrast(1.4) brightness(.84); } 60% { filter: grayscale(1) contrast(1.45) brightness(.9); } }
+.alt.custom > img { animation: none; }
+/* one-shot RGB-split glitch when full mode ignites */
+.pimg.ignite .alt { animation: hGlitch .6s steps(1) 1; }
+@keyframes hGlitch {
+  0% { transform: translate(-4px, 1px); filter: drop-shadow(4px 0 0 rgba(255,0,60,.7)) drop-shadow(-4px 0 0 rgba(0,200,255,.45)); }
+  20% { transform: translate(5px, -2px); filter: drop-shadow(-5px 0 0 rgba(255,0,60,.7)) drop-shadow(5px 0 0 rgba(0,200,255,.45)); }
+  40% { transform: translate(-2px, 0); filter: drop-shadow(3px 0 0 rgba(255,0,60,.6)); }
+  60% { transform: translate(3px, 1px); filter: hue-rotate(-20deg) brightness(1.4); }
+  80% { transform: translate(0, -1px); filter: none; }
+  100% { transform: none; filter: none; }
+}
+/* lens: bright center dot so it reads like a targeting eye */
+.lens::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; translate: -50% -50%; border-radius: 50%; background: rgba(255,170,100,.95); box-shadow: 0 0 12px rgba(255,100,50,1); }
+@media (prefers-reduced-motion: reduce) { .alt > img, .pimg.ignite .alt, .pcard:has(.pimg.full) { animation: none; } }
+
+/* ===== Certificates & awards ===== */
+.certs { padding-top: 120px; padding-bottom: 20px; }
+.cert-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+.cdeck { height: 460px; }
+.cdeck .ccard { z-index: var(--z); display: flex; flex-direction: column; gap: 12px; padding: 14px; height: 330px; }
+.cbadge { align-self: flex-start; display: inline-flex; gap: 8px; padding: 5px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 11px; }
+.cbadge b { font-weight: 500; opacity: .6; }
+.c-img { flex: 1; min-height: 0; display: grid; place-items: center; border-radius: 14px; background: var(--bg); border: 1px dashed var(--line); overflow: hidden; }
+.c-img img { width: 100%; height: 100%; object-fit: cover; }
+.c-img svg { width: 44px; height: 44px; fill: none; stroke: var(--mid); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ccard h3 { font: 500 17px/1.25 var(--sans); letter-spacing: -.02em; }
+.ccard p { margin: -6px 0 0; color: var(--mid); font-size: 14px; }
+.cdeck .tray { height: 96px; }
+.c-vis { height: auto; min-height: 180px; max-height: 58vh; }
+.c-vis img { width: auto; height: auto; max-width: 100%; max-height: 58vh; object-fit: contain; }
+
+/* ===== Contact upgrade ===== */
+.term { border: 1px solid var(--line); border-radius: 22px; background: var(--bg2); overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); }
+.term-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--mid); }
+.term-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--chip); border: 1px solid var(--line); }
+.term-bar span { flex: 1; margin-left: 10px; }
+.term-bar em { display: inline-flex; align-items: center; gap: 6px; font-style: normal; }
+.term-body { padding: 18px 20px 6px; font-size: 13px; line-height: 1.9; color: var(--mid); }
+.term-body p { margin: 0; white-space: nowrap; }
+.term-body b { color: rgb(var(--hot)); font-weight: 500; }
+.js .term:not(.in) .term-body p { clip-path: inset(0 100% 0 0); }
+.term.in .term-body p { animation: typeln .7s steps(26) calc(var(--k) * .7s) backwards; }
+@keyframes typeln { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.t-cur { display: inline-block; width: 7px; height: 14px; margin-left: 4px; vertical-align: -2px; background: rgb(var(--hot)); animation: blink 1s steps(1) infinite; }
+.contact-main .term .mail-addr { margin: 14px 16px 0; }
+.contact-main .term .actions { margin: 0; padding: 14px 16px 18px; }
+.chan { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chan a { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg2); color: var(--ink); text-decoration: none; transition: transform .35s var(--spring), border-color .3s; }
+.chan i { grid-row: 1 / 3; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: var(--chip); font: 500 12px var(--monof); font-style: normal; transition: background .3s, color .3s; }
+.chan b { font-weight: 500; }
+.chan span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--mid); font-size: 13px; }
+.chan em { grid-row: 1 / 3; font-style: normal; color: var(--mid); transition: transform .3s, color .3s; }
+.chan a:hover, .chan a:focus-visible { transform: translateY(-3px); border-color: rgb(var(--hot)); }
+.chan a:hover i, .chan a:focus-visible i { background: rgb(var(--hot)); color: #fff; }
+.chan a:hover em { transform: translate(3px, -3px); color: rgb(var(--hot)); }
+
+
+@media (max-width: 960px) { .cert-grid { grid-template-columns: 1fr; gap: 40px; } .cert-copy { order: -1; } }
+@media (max-width: 720px) { .certs { padding-top: 84px; } .chan { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .cdeck .ccard { height: 310px; } }
+@media (prefers-reduced-motion: reduce) { .js .term:not(.in) .term-body p { clip-path: none; } .term.in .term-body p { animation: none; } }
+
+/* ===== Section entrance: plays once when you scroll into a new section ===== */
+.sec { position: relative; }
+.js .sec:not(.sec-in) { opacity: 0; }
+.sec.sec-in { animation: secIn .6s var(--ease) both; }
+@keyframes secIn { from { opacity: 0; transform: translateY(36px); } to { opacity: 1; transform: none; } }
+.sec::before { content: ""; position: absolute; left: 28px; right: 28px; top: 56px; height: 1px; background: linear-gradient(90deg, rgb(var(--hot)), transparent); transform-origin: left; transform: scaleX(0); opacity: 0; pointer-events: none; }
+.sec.sec-in::before { animation: secLine 1s var(--ease); }
+@keyframes secLine { 0% { transform: scaleX(0); opacity: 1; } 65% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .js .sec:not(.sec-in) { opacity: 1; } .sec.sec-in, .sec.sec-in::before { animation: none; } }
+
+/* ===== Brand logos ===== */
+.so { width: 22px; height: 22px; flex: none; display: block; }
+.chan i .so { width: 20px; height: 20px; }
+.soc a { grid-template-columns: 36px 1fr; column-gap: 14px; align-items: center; }
+.soc a .so { grid-row: 1 / 3; width: 36px; height: 36px; padding: 8px; border-radius: 11px; background: var(--chip); transition: background .25s, color .25s; }
+.soc a:hover .so { background: rgba(255,255,255,.22); color: #fff; }
+.facts { margin-top: 26px; }
+
+/* ===== Section transition: falling code streaks (like the reference video) ===== */
+#warp { position: fixed; inset: 0; z-index: 25; pointer-events: none; visibility: hidden; }
+#warp.on { visibility: visible; }
+#warp-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--bg) 92%, transparent), color-mix(in srgb, var(--bg) 70%, transparent)); opacity: 0; }
+#warp.on #warp-veil { animation: veil .95s ease-in-out; }
+@keyframes veil { 0% { opacity: 0; } 28% { opacity: .78; } 62% { opacity: .5; } 100% { opacity: 0; } }
+#warp canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#warp-tag { position: absolute; left: 50%; top: 50%; translate: -50% -50%; padding: 8px 18px; border: 1px solid rgb(var(--hot)); border-radius: 999px; background: color-mix(in srgb, var(--bg) 85%, transparent); color: rgb(var(--hot)); white-space: nowrap; opacity: 0; }
+#warp.on #warp-tag { animation: wtag .95s var(--ease); }
+@keyframes wtag { 0% { opacity: 0; transform: scale(.8); letter-spacing: .5em; } 30%, 60% { opacity: 1; transform: none; letter-spacing: .06em; } 100% { opacity: 0; transform: scale(1.08); } }
+
+/* ===== Section entrance v2: depth + blur, then children stagger in ===== */
+.sec.sec-in { animation: secIn .9s var(--ease) both; }
+@keyframes secIn { from { opacity: 0; transform: perspective(1400px) translateY(70px) rotateX(7deg) scale(.96); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+.js .sec:not(.sec-in) .stg { opacity: 0; }
+.sec.sec-in .stg { animation: stg .9s calc(var(--s, 0) * 90ms + 160ms) var(--ease) backwards; }
+@keyframes stg { from { opacity: 0; transform: translateY(40px) scale(.97); filter: blur(6px); } }
+@media (prefers-reduced-motion: reduce) { #warp { display: none; } .js .sec:not(.sec-in) .stg { opacity: 1; } .sec.sec-in .stg { animation: none; } }

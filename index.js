@@ -242,54 +242,108 @@ if (mouse) {
   pc.addEventListener("pointerleave", () => { pc.style.setProperty("--rx", "0deg"); pc.style.setProperty("--ry", "0deg"); });
 }
 
-/* ---------- Hades mode: hover = lens, click / tap = whole portrait ---------- */
+/* ---------- Hades mode: hover = heavy lens, click / tap / H = full portrait, Esc = exit ---------- */
 (() => {
-  const box = $("#pimg"), alt = $(".alt", box), lens = $(".lens", box), cvs = $("#alt-fx"), g = cvs.getContext("2d");
-  const GL = "01{}<>/=+*;:#$%&[]()", C = 18;
-  let w = 0, h = 0, x = 0, y = 0, raf = 0, last = 0, embers = [];
-  if (!mouse) $("#p-hint").textContent = "tap me";
+  const box = $("#pimg"), alt = $(".alt", box), lens = $(".lens", box), cvs = $("#alt-fx"), g = cvs.getContext("2d"), hint = $("#p-hint");
+  const buf = document.createElement("canvas"), b = buf.getContext("2d"); // glyph layer, redrawn slowly
+  const GL = "01{}<>/=+*;:#$%&[]()", C = 18, IDLE = mouse ? "hover me" : "tap me";
+  const tgt = { x: 0, y: 0 }, pos = { x: 0, y: 0 };
+  let w = 0, h = 0, raf = 0, lastGrid = 0, prev = 0, embers = [], sparks = [], custom = false;
+  const full = () => box.classList.contains("full");
+
   // Optional: put your own picture named profile-hero.png beside index.html and the lens will show it
   const own = new Image();
-  own.onload = () => { $("#alt-img").src = own.src; alt.classList.add("custom"); };
+  own.onload = () => { $("#alt-img").src = own.src; alt.classList.add("custom"); custom = true; };
   own.src = "profile-hero.png";
 
-  function move(e) {
-    const r = box.getBoundingClientRect(); x = e.clientX - r.left; y = e.clientY - r.top;
-    for (const t of [alt, lens]) { t.style.setProperty("--mx", x + "px"); t.style.setProperty("--my", y + "px"); }
+  const say = () => { hint.textContent = full() ? "hades mode on" : box.classList.contains("on") ? "click to go full" : IDLE; };
+  const place = () => { for (const t of [alt, lens]) { t.style.setProperty("--mx", pos.x.toFixed(1) + "px"); t.style.setProperty("--my", pos.y.toFixed(1) + "px"); } };
+  function move(e, snap) {
+    const r = box.getBoundingClientRect(); tgt.x = e.clientX - r.left; tgt.y = e.clientY - r.top;
+    if (snap || reduce) { pos.x = tgt.x; pos.y = tgt.y; place(); }
+  }
+  const spark = (x, y, vx, vy, life) => { if (sparks.length < 110) sparks.push({ x, y, vx, vy, life, max: life }); };
+
+  // glyph grid: the lens lights up the characters near it, full mode sends a scan band down the portrait
+  function grid(now) {
+    b.clearRect(0, 0, w, h);
+    const f = full(), dim = custom ? 0.45 : 1, scan = ((now / 9) % (h + 160)) - 80;
+    b.font = "500 13px 'Geist Mono', monospace"; b.textAlign = "center";
+    for (let cy = C / 2; cy < h; cy += C) for (let cx = C / 2; cx < w; cx += C) {
+      const lit = f ? Math.max(0, 1 - Math.abs(cy - scan) / 70) : Math.max(0, 1 - Math.hypot(cx - pos.x, cy - pos.y) / 110);
+      if (Math.random() > 0.2 + lit * 0.55) continue;
+      b.fillStyle = `rgba(255,${(120 + lit * 110) | 0},70,${((0.12 + Math.random() * 0.25 + lit * 0.45) * dim).toFixed(2)})`;
+      b.fillText(GL[(Math.random() * GL.length) | 0], cx, cy + 4);
+    }
   }
   function paint(now) {
     raf = box.matches(".on, .full") && !reduce ? requestAnimationFrame(paint) : 0;
-    if (now - last < 50) return;
-    last = now;
-    g.clearRect(0, 0, w, h);
-    const full = box.classList.contains("full"), dim = alt.classList.contains("custom") ? 0.45 : 1;
-    g.font = "500 13px 'Geist Mono', monospace"; g.textAlign = "center";
-    for (let cy = C / 2; cy < h; cy += C) for (let cx = C / 2; cx < w; cx += C) {
-      const near = full ? 0 : Math.max(0, 1 - Math.hypot(cx - x, cy - y) / 110);
-      if (Math.random() > 0.2 + near * 0.5) continue;
-      g.fillStyle = `rgba(255,${(120 + near * 100) | 0},70,${((0.12 + Math.random() * 0.25 + near * 0.4) * dim).toFixed(2)})`;
-      g.fillText(GL[(Math.random() * GL.length) | 0], cx, cy + 4);
-    }
+    const dt = Math.min((now - prev) / 1000, 0.05); prev = now;
+    const px = pos.x, py = pos.y, ease = Math.min(1, dt * 12);
+    pos.x += (tgt.x - pos.x) * ease; pos.y += (tgt.y - pos.y) * ease; place();
+    // moving the lens throws sparks
+    if (!full() && Math.hypot(pos.x - px, pos.y - py) > 1.5) for (let i = 0; i < 2; i++)
+      spark(pos.x + (Math.random() - 0.5) * 36, pos.y + (Math.random() - 0.5) * 36, (Math.random() - 0.5) * 30, -30 - Math.random() * 50, 0.6 + Math.random() * 0.5);
+    if (now - lastGrid > 90) { lastGrid = now; grid(now); }
+    g.clearRect(0, 0, w, h); g.drawImage(buf, 0, 0, w, h);
+    const dim = custom ? 0.45 : 1;
     for (const p of embers) {
-      p.y -= p.v; p.x += Math.sin(now / 300 + p.v * 9) * 0.8;
+      p.y -= p.v * 22 * dt; p.x += Math.sin(now / 300 + p.v * 9) * 16 * dt;
       if (p.y < -6) { p.y = h + 6; p.x = Math.random() * w; }
       g.fillStyle = `rgba(255,${(150 + p.r * 30) | 0},60,${(0.9 * dim).toFixed(2)})`; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 7); g.fill();
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i]; s.life -= dt;
+      if (s.life <= 0) { sparks.splice(i, 1); continue; }
+      s.x += s.vx * dt; s.y += s.vy * dt; s.vy *= 0.985;
+      const a = s.life / s.max;
+      g.fillStyle = `rgba(255,120,40,${(a * 0.25 * dim).toFixed(2)})`; g.beginPath(); g.arc(s.x, s.y, 3.2 * a + 1, 0, 7); g.fill();
+      g.fillStyle = `rgba(255,214,140,${(a * dim).toFixed(2)})`; g.beginPath(); g.arc(s.x, s.y, 1.3 * a + 0.4, 0, 7); g.fill();
     }
   }
   function wake() {
     if (!w || w !== box.clientWidth) {
       w = box.clientWidth; h = box.clientHeight; const d = Math.min(devicePixelRatio || 1, 2);
-      cvs.width = w * d; cvs.height = h * d; g.setTransform(d, 0, 0, d, 0, 0);
+      for (const c of [cvs, buf]) { c.width = w * d; c.height = h * d; }
+      g.setTransform(d, 0, 0, d, 0, 0); b.setTransform(d, 0, 0, d, 0, 0);
       embers = Array.from({ length: 34 }, () => ({ x: Math.random() * w, y: Math.random() * h, v: 1 + Math.random() * 3, r: 0.7 + Math.random() * 1.8 }));
+      lastGrid = 0;
     }
-    if (!raf) raf = requestAnimationFrame(paint);
+    if (!raf) { prev = performance.now(); raf = requestAnimationFrame(paint); }
   }
-  const setFull = (v) => { box.classList.toggle("full", v); box.setAttribute("aria-pressed", String(v)); if (v) wake(); };
-  box.addEventListener("pointerenter", (e) => { if (e.pointerType !== "mouse") return; move(e); box.classList.add("on"); wake(); });
-  box.addEventListener("pointermove", (e) => { move(e); if (e.pointerType === "mouse") box.classList.add("on"); wake(); });
-  box.addEventListener("pointerleave", (e) => { if (e.pointerType !== "mouse") return; box.classList.remove("on"); setFull(false); });
-  box.addEventListener("click", (e) => { if (e.detail) move(e); setFull(!box.classList.contains("full")); });
-  box.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFull(!box.classList.contains("full")); } });
+  function ignite() { // one-shot glitch + ember burst when full mode turns on
+    box.classList.add("ignite"); setTimeout(() => box.classList.remove("ignite"), 650);
+    if (!reduce) for (let i = 0; i < 46; i++) spark(Math.random() * w, h * (0.55 + Math.random() * 0.45), (Math.random() - 0.5) * 50, -60 - Math.random() * 140, 0.8 + Math.random() * 0.9);
+  }
+  function setFull(v) {
+    if (v === full()) return;
+    box.classList.toggle("full", v); box.setAttribute("aria-pressed", String(v));
+    if (v) { wake(); ignite(); }
+    say();
+  }
+
+  say();
+  box.addEventListener("pointerenter", (e) => { if (e.pointerType !== "mouse") return; move(e, true); box.classList.add("on"); say(); wake(); });
+  box.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const first = !box.classList.contains("on"); move(e, first);
+    if (first) { box.classList.add("on"); say(); }
+    wake();
+  });
+  // leaving only closes the lens; full mode stays on until you click again, press H, or press Esc
+  box.addEventListener("pointerleave", (e) => { if (e.pointerType !== "mouse") return; box.classList.remove("on"); say(); });
+  box.addEventListener("click", (e) => { if (e.detail) move(e, true); setFull(!full()); });
+  box.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFull(!full()); } });
+  addEventListener("keydown", (e) => {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || $("dialog[open]") || root.classList.contains("intro-on")) return;
+    if (e.target.closest && e.target.closest("input,textarea,select,[contenteditable]")) return;
+    if (e.key === "Escape") setFull(false);
+    else if (e.key.toLowerCase() === "h") {
+      const r = box.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) box.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+      setFull(!full());
+    }
+  });
 })();
 
 /* ---------- Rotating role with a scramble effect ---------- */
@@ -431,3 +485,93 @@ deck.addEventListener("click", (e) => {
 deck.addEventListener("keydown", (e) => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches(".dcard")) { e.preventDefault(); openProject(+e.target.dataset.p); }
 });
+
+/* ---------- Certificates & awards: edit this list ----------
+   Ilagay ang picture sa images/ folder (hal. "images/cert1.jpg"). type: "Certificate" o "Award".
+   Pwede kang magdagdag o magbawas ng items, kusang aayos ang pagka-fan ng cards. */
+const CERTS = [
+  { title: "Certificate Title One", type: "Certificate", issuer: "Issuer name", date: "2026", desc: "What this certificate is for. Add a short description here.", image: "", link: "" },
+  { title: "Award Title", type: "Award", issuer: "Issuer name", date: "2026", desc: "What this award was given for. Add a short description here.", image: "", link: "" },
+  { title: "Certificate Title Two", type: "Certificate", issuer: "Issuer name", date: "2025", desc: "What this certificate is for. Add a short description here.", image: "", link: "" },
+];
+(() => {
+  const dk = $("#cdeck"), n = CERTS.length, spread = n > 3 ? 56 : 78;
+  const medal = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="m9 13-1.5 8 4.5-2 4.5 2L15 13"/></svg>';
+  $("#c-total").textContent = `${n} ${n === 1 ? "item" : "items"} / click a card to open it`;
+  dk.innerHTML = CERTS.map((c, i) => {
+    const t = i - (n - 1) / 2, a = Math.abs(t);
+    return `<div class="dcard ccard" role="button" tabindex="0" data-c="${i}" aria-label="View ${c.title}" style="--d:${i};--z:${Math.max(1, 9 - Math.round(a * 2))};--x:${t * 32}px;--y:${-30 + a * 14}px;--rot:${t * 5}deg;--hx:${t * spread}px;--hy:${-80 + a * 24}px;--hr:${t * 11}deg"><span class="cbadge mono"><b>{</b>${c.type}<b>}</b></span><div class="c-img">${c.image ? `<img src="${c.image}" alt="">` : medal}</div><h3>${c.title}</h3><p>${c.issuer} · ${c.date}</p></div>`;
+  }).join("") + '<div class="tray"><span class="mono">Certificates &amp; awards</span><span class="mono"><i class="dot"></i>' + n + ' items</span></div>';
+  const io = new IntersectionObserver((es, o) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); o.unobserve(e.target); } }), { threshold: 0.3 });
+  io.observe(dk); io.observe($("#term"));
+  const cv = $("#cert-viewer"); let k = 0;
+  function show(i) {
+    k = (i + n) % n; const c = CERTS[k];
+    $("#c-count").textContent = `${String(k + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
+    $("#c-type").textContent = c.type; $("#c-title").textContent = c.title; $("#c-desc").textContent = `${c.issuer} · ${c.date}. ${c.desc}`;
+    $("#c-vis").innerHTML = c.image ? `<img src="${c.image}" alt="${c.title}">` : medal;
+    $("#c-links").innerHTML = c.link ? `<a class="pill pill-solid" href="${c.link}" target="_blank" rel="noopener noreferrer">Verify ↗</a>` : "";
+  }
+  const open = (i) => { show(i); if (!cv.open) cv.showModal(); };
+  $("#c-prev").addEventListener("click", () => show(k - 1)); $("#c-next").addEventListener("click", () => show(k + 1));
+  cv.addEventListener("click", (e) => { if (e.target === cv) cv.close(); });
+  dk.addEventListener("click", (e) => {
+    const c = e.target.closest(".dcard");
+    if (c && (mouse || dk.classList.contains("pulled"))) open(+c.dataset.c); else if (!mouse) dk.classList.toggle("pulled");
+  });
+  dk.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".dcard")) { e.preventDefault(); open(+e.target.dataset.c); } });
+})();
+
+/* ---------- Short entrance animation when you scroll into a new section ---------- */
+(() => {
+  const secs = $$(".about, .skills, .services, .work, .certs, .contact");
+  if (reduce) return;
+  const io = new IntersectionObserver((es, o) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("sec-in"); o.unobserve(e.target); } }), { threshold: 0.08, rootMargin: "0px 0px -8% 0px" });
+  secs.forEach((s) => { s.classList.add("sec"); io.observe(s); });
+})();
+
+/* ---------- Section warp: code streaks fall (or rise) when you move to another section ---------- */
+(() => {
+  if (reduce) return;
+  const wrap = document.createElement("div"); wrap.id = "warp"; wrap.setAttribute("aria-hidden", "true");
+  wrap.innerHTML = '<div id="warp-veil"></div><canvas></canvas><span id="warp-tag" class="mono"></span>';
+  document.body.append(wrap);
+  const cvs = $("canvas", wrap), g = cvs.getContext("2d"), tag = $("#warp-tag"), GL = "01{}<>/=+*;:#$%&[]()";
+  const DUR = 950; let W, H, streaks = [], raf = 0, t0 = 0, prev = 0, off;
+  const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cvs.width = W * d; cvs.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); };
+  fit(); addEventListener("resize", fit);
+  function tick(now) {
+    const age = now - t0, dt = Math.min((now - prev) / 1000, 0.05); prev = now;
+    if (age > DUR) { raf = 0; wrap.classList.remove("on"); g.clearRect(0, 0, W, H); return; }
+    raf = requestAnimationFrame(tick);
+    const p = age / DUR, fade = Math.min(1, age / 120) * (1 - p * p);
+    g.clearRect(0, 0, W, H); g.font = "13px 'Geist Mono', monospace"; g.textAlign = "center";
+    for (const s of streaks) {
+      s.y += s.v * dt;
+      const tail = s.y - Math.sign(s.v) * s.len, gr = g.createLinearGradient(0, tail, 0, s.y);
+      gr.addColorStop(0, `rgba(${hot},0)`); gr.addColorStop(1, `rgba(${hot},${(0.85 * fade * s.a).toFixed(2)})`);
+      g.strokeStyle = gr; g.lineWidth = s.w; g.beginPath(); g.moveTo(s.x, tail); g.lineTo(s.x, s.y); g.stroke();
+      if (s.ch) { g.fillStyle = `rgba(${hot},${(fade * s.a).toFixed(2)})`; g.fillText(GL[(Math.random() * GL.length) | 0], s.x, s.y + Math.sign(s.v) * 12); }
+    }
+  }
+  function burst(dir, name) {
+    const now = performance.now(), n = Math.min(110, Math.ceil(W / 14));
+    streaks = Array.from({ length: n }, () => ({ x: Math.random() * W, y: dir > 0 ? -Math.random() * H * 0.5 : H + Math.random() * H * 0.5, v: (800 + Math.random() * 1500) * dir, len: 60 + Math.random() * 240, w: Math.random() < 0.2 ? 2 : 1, a: 0.4 + Math.random() * 0.6, ch: Math.random() < 0.35 }));
+    tag.textContent = `> ${name}`;
+    wrap.classList.remove("on"); void wrap.offsetWidth; wrap.classList.add("on");
+    t0 = now; prev = now; if (!raf) raf = requestAnimationFrame(tick);
+  }
+  const secs = $$("main > section[id]"), cur = { i: -1 };
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const i = secs.indexOf(e.target);
+    if (cur.i === -1) { cur.i = i; return; }
+    if (i === cur.i) return;
+    const dir = i > cur.i ? 1 : -1; cur.i = i;
+    if (!root.classList.contains("intro-on")) burst(dir, e.target.id);
+  }), { rootMargin: "-50% 0px -50% 0px" });
+  secs.forEach((s) => io.observe(s));
+})();
+
+/* ---------- Stagger children inside each section ---------- */
+$$(".sec").forEach((s) => $$(".kicker, .lead, .sk-tools, .skill-grid, .about-grid > *, .svc > *, .work-grid > *, .cert-grid > *, .contact-panel > .contact-main, .contact-panel > .contact-side", s).forEach((el, i) => { el.classList.add("stg"); el.style.setProperty("--s", i); }));
