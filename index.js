@@ -3,6 +3,39 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const root = document.documentElement;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mouse = matchMedia("(hover: hover)").matches;
+const isM = matchMedia("(max-width:760px)").matches; // mobile uses mobile.js; skip heavy desktop effects
+
+/* ---------- Liquid glass: bends whatever is behind the edges of a pill (Chrome / Edge / Android).
+   Other browsers keep the frosted blur from the CSS. Used by the desktop header and by mobile.js. ---------- */
+function liquidGlass(el, id, blur = 0.6) {
+  if (!el || !/Chrome\/\d/.test(navigator.userAgent)) return;
+  const NS = "http://www.w3.org/2000/svg", host = document.createElementNS(NS, "svg");
+  host.setAttribute("width", "0"); host.setAttribute("height", "0"); host.setAttribute("aria-hidden", "true"); host.style.position = "absolute";
+  document.body.append(host);
+  const only = (row) => [0, 1, 2].map((i) => (i === row ? [0, 1, 2, 3, 4].map((j) => (j === i ? 1 : 0)).join(" ") : "0 0 0 0 0")).join(" ") + " 0 0 0 1 0";
+  const build = () => {
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
+    if (!w || !h) return;
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const g = c.getContext("2d"), img = g.createImageData(w, h), r = h / 2, band = h * 0.46;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const dx = x + 0.5 - w / 2, dy = y + 0.5 - h / 2, qx = Math.abs(dx) - (w / 2 - r), qy = Math.abs(dy) - (h / 2 - r);
+      const depth = -(Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r);
+      const m = Math.pow(Math.max(0, Math.min(1, 1 - depth / band)), 2);
+      let nx = 0, ny = 0;
+      if (qx > 0) { const l = Math.hypot(qx, Math.max(qy, 0) || dy) || 1; nx = (Math.sign(dx) * qx) / l; ny = dy / l; } else ny = Math.sign(dy);
+      const i = (y * w + x) * 4;
+      img.data[i] = 128 - nx * m * 127; img.data[i + 1] = 128 - ny * m * 127; img.data[i + 2] = 128; img.data[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    const bend = (n, scale) => `<feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="d${n}"/><feColorMatrix in="d${n}" type="matrix" values="${only(n)}" result="c${n}"/>`;
+    host.innerHTML = `<filter id="${id}" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="${c.toDataURL()}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>${bend(0, 48)}${bend(1, 44)}${bend(2, 40)}<feBlend in="c0" in2="c1" mode="screen" result="rg"/><feBlend in="rg" in2="c2" mode="screen"/></filter>`;
+    el.style.backdropFilter = `url(#${id}) blur(${blur}px) saturate(1.5)`;
+    el.classList.add("is-liquid");
+  };
+  new ResizeObserver(build).observe(el);
+  build();
+}
 
 /* ---------- Intro: boot log, code rain + embers, fire-filled name, shutters split open ---------- */
 (() => {
@@ -161,7 +194,7 @@ function frame(t) {
 }
 size();
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(size, 150); });
-if (!reduce) {
+if (!reduce && !isM) {
   addEventListener("pointermove", (e) => { mx = e.clientX; my = e.clientY; if (!inside) { sx = mx; sy = my; inside = mouse; } }, { passive: true });
   root.addEventListener("pointerleave", () => { inside = false; });
   addEventListener("pointerdown", (e) => ripples.push({ x: e.clientX, y: e.clientY, t: performance.now() }));
@@ -174,7 +207,7 @@ function applyTheme(t) {
   root.dataset.theme = t;
   tlabel.textContent = t === "dark" ? "Light" : "Dark";
   tbtn.setAttribute("aria-label", `Switch to ${t === "dark" ? "light" : "dark"} theme`);
-  try { localStorage.setItem("theme", t); } catch {}
+  try { localStorage.setItem("theme2", t); } catch {}
   matrixColor();
 }
 applyTheme(root.dataset.theme === "dark" ? "dark" : "light");
@@ -371,7 +404,7 @@ $$(".skill").forEach((s) => {
 });
 
 /* ---------- Skill filters + typing terminal ---------- */
-const skCmd = $("#sk-cmd"), skCount = $("#sk-count"), FLAGS = { all: "--all", front: "--front-end", lang: "--languages" };
+const skCmd = $("#sk-cmd"), skCount = $("#sk-count"), FLAGS = { all: "--all", front: "--front-end", back: "--back-end", lang: "--languages", tool: "--tools" };
 let typer;
 function typeCmd(text, count) {
   clearInterval(typer); skCount.textContent = count;
@@ -422,6 +455,7 @@ copyBtn.addEventListener("click", async () => {
 
 /* ---------- Glass header: light follows the cursor, stronger blur after scrolling ---------- */
 const navEl = $(".nav"), navWrap = $(".nav-wrap");
+if (!isM) liquidGlass(navEl, "lg-nav", 5);
 navEl.addEventListener("pointermove", (e) => { const r = navEl.getBoundingClientRect(); navEl.style.setProperty("--nx", e.clientX - r.left + "px"); navEl.style.setProperty("--ny", e.clientY - r.top + "px"); });
 addEventListener("scroll", () => navWrap.classList.toggle("scrolled", scrollY > 30), { passive: true });
 
@@ -532,7 +566,7 @@ const CERTS = [
 
 /* ---------- Section warp: code streaks fall (or rise) when you move to another section ---------- */
 (() => {
-  if (reduce) return;
+  if (reduce || isM) return;
   const wrap = document.createElement("div"); wrap.id = "warp"; wrap.setAttribute("aria-hidden", "true");
   wrap.innerHTML = '<div id="warp-veil"></div><canvas></canvas><span id="warp-tag" class="mono"></span>';
   document.body.append(wrap);

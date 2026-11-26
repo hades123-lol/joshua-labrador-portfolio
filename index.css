@@ -365,8 +365,8 @@ h2 em, .row-title em { font: italic 400 1.12em var(--serif); letter-spacing: -.0
 [data-theme="dark"] .nav-links.open { background: rgba(30,32,38,.8); }
 /* tech strip */
 .strip { display: grid; gap: 12px; padding: 16px 0; }
-.strip-track { animation-duration: 48s; }
-.strip-track.rev { animation-direction: reverse; animation-duration: 56s; }
+.strip-track { animation-duration: 90s; }
+.strip-track.rev { animation-direction: reverse; animation-duration: 104s; }
 .strip-track span { --c: var(--ink); padding: 8px 22px 8px 8px; margin-right: 14px; gap: 12px; color: var(--ink); font-weight: 500; border: 1px solid var(--line); border-radius: 999px; background: var(--bg2); transition: transform .35s var(--spring), box-shadow .3s, border-color .3s; }
 .strip-track span:hover { transform: translateY(-4px) scale(1.04); border-color: var(--c); box-shadow: 0 14px 30px -12px var(--c); }
 .strip-track span:hover .lg { animation: wob .6s var(--ease); }
@@ -722,3 +722,7 @@ html.intro :where(main, header, footer) * { animation-play-state: paused !import
 .sec.sec-in .stg { animation: stg .9s calc(var(--s, 0) * 90ms + 160ms) var(--ease) backwards; }
 @keyframes stg { from { opacity: 0; transform: translateY(40px) scale(.97); filter: blur(6px); } }
 @media (prefers-reduced-motion: reduce) { #warp { display: none; } .js .sec:not(.sec-in) .stg { opacity: 1; } .sec.sec-in .stg { animation: none; } }
+
+/* ===== Liquid glass header (like the reference video) ===== */
+.nav.is-liquid { background: rgba(255,255,255,.5); }
+[data-theme="dark"] .nav.is-liquid { background: rgba(8,10,16,.62); border-color: rgba(255,255,255,.14); box-shadow: inset 0 0 18px rgba(255,255,255,.12), inset 0 1px 0 rgba(255,255,255,.34), inset 0 -1px 0 rgba(255,255,255,.2), 0 14px 40px -12px rgba(0,0,0,.7); }
