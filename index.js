@@ -5,9 +5,10 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mouse = matchMedia("(hover: hover)").matches;
 const isM = matchMedia("(max-width:760px)").matches; // mobile uses mobile.js; skip heavy desktop effects
 
-/* ---------- Liquid glass: bends whatever is behind the edges of a pill (Chrome / Edge / Android).
-   Other browsers keep the frosted blur from the CSS. Used by the desktop header and by mobile.js. ---------- */
-function liquidGlass(el, id, blur = 0.6) {
+/* ---------- Liquid glass: a clear pane that bends and splits the colours of whatever is behind its
+   edges (Chrome, Edge, Android). Other browsers keep the frosted blur from the CSS.
+   Used by the desktop header and by mobile.js. ---------- */
+function liquidGlass(el, id, { blur = 0, bend = -170 } = {}) {
   if (!el || !/Chrome\/\d/.test(navigator.userAgent)) return;
   const NS = "http://www.w3.org/2000/svg", host = document.createElementNS(NS, "svg");
   host.setAttribute("width", "0"); host.setAttribute("height", "0"); host.setAttribute("aria-hidden", "true"); host.style.position = "absolute";
@@ -16,21 +17,13 @@ function liquidGlass(el, id, blur = 0.6) {
   const build = () => {
     const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
     if (!w || !h) return;
-    const c = document.createElement("canvas"); c.width = w; c.height = h;
-    const g = c.getContext("2d"), img = g.createImageData(w, h), r = h / 2, band = h * 0.46;
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const dx = x + 0.5 - w / 2, dy = y + 0.5 - h / 2, qx = Math.abs(dx) - (w / 2 - r), qy = Math.abs(dy) - (h / 2 - r);
-      const depth = -(Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r);
-      const m = Math.pow(Math.max(0, Math.min(1, 1 - depth / band)), 2);
-      let nx = 0, ny = 0;
-      if (qx > 0) { const l = Math.hypot(qx, Math.max(qy, 0) || dy) || 1; nx = (Math.sign(dx) * qx) / l; ny = dy / l; } else ny = Math.sign(dy);
-      const i = (y * w + x) * 4;
-      img.data[i] = 128 - nx * m * 127; img.data[i + 1] = 128 - ny * m * 127; img.data[i + 2] = 128; img.data[i + 3] = 255;
-    }
-    g.putImageData(img, 0, 0);
-    const bend = (n, scale) => `<feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="d${n}"/><feColorMatrix in="d${n}" type="matrix" values="${only(n)}" result="c${n}"/>`;
-    host.innerHTML = `<filter id="${id}" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="${c.toDataURL()}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>${bend(0, 48)}${bend(1, 44)}${bend(2, 40)}<feBlend in="c0" in2="c1" mode="screen" result="rg"/><feBlend in="rg" in2="c2" mode="screen"/></filter>`;
-    el.style.backdropFilter = `url(#${id}) blur(${blur}px) saturate(1.5)`;
+    // displacement map: red = sideways push, blue = up / down push, grey middle = no push
+    const r = h / 2, edge = Math.min(w, h) * 0.035;
+    const box = `width="${w}" height="${h}" rx="${r}"`;
+    const map = `<svg xmlns="${NS}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="r" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="red"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="blue"/></linearGradient></defs><rect width="${w}" height="${h}" fill="#000"/><rect ${box} fill="url(#r)"/><rect ${box} fill="url(#b)" style="mix-blend-mode:difference"/><rect x="${edge}" y="${edge}" width="${w - edge * 2}" height="${h - edge * 2}" rx="${r}" fill="rgb(128,128,128)" fill-opacity="0.93" style="filter:blur(11px)"/></svg>`;
+    const split = (n, scale) => `<feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="B" result="d${n}"/><feColorMatrix in="d${n}" type="matrix" values="${only(n)}" result="c${n}"/>`;
+    host.innerHTML = `<filter id="${id}" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="data:image/svg+xml,${encodeURIComponent(map)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>${split(0, bend)}${split(1, bend + 10)}${split(2, bend + 20)}<feBlend in="c0" in2="c1" mode="screen" result="rg"/><feBlend in="rg" in2="c2" mode="screen" result="out"/><feGaussianBlur in="out" stdDeviation="0.5"/></filter>`;
+    el.style.backdropFilter = `url(#${id})${blur ? ` blur(${blur}px)` : ""} saturate(1.4)`;
     el.classList.add("is-liquid");
   };
   new ResizeObserver(build).observe(el);
@@ -455,7 +448,7 @@ copyBtn.addEventListener("click", async () => {
 
 /* ---------- Glass header: light follows the cursor, stronger blur after scrolling ---------- */
 const navEl = $(".nav"), navWrap = $(".nav-wrap");
-if (!isM) liquidGlass(navEl, "lg-nav", 5);
+if (!isM) liquidGlass(navEl, "lg-nav", { blur: 9, bend: -60 });
 navEl.addEventListener("pointermove", (e) => { const r = navEl.getBoundingClientRect(); navEl.style.setProperty("--nx", e.clientX - r.left + "px"); navEl.style.setProperty("--ny", e.clientY - r.top + "px"); });
 addEventListener("scroll", () => navWrap.classList.toggle("scrolled", scrollY > 30), { passive: true });
 

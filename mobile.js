@@ -90,7 +90,8 @@
        so the page always stops on the section that was tapped. */
     const ids = ["m-home", "m-about", "m-stuff", "m-contact"], dock = $("#m-dock"), dockLinks = $$("a", dock);
     let moving = 0;
-    const mark = (k) => { dock.style.setProperty("--k", k); dockLinks.forEach((a, j) => { a.classList.toggle("on", j === k); j === k ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current"); }); };
+    let at = 0, squish = 0;
+    const mark = (k) => { if (k !== at) { at = k; dock.classList.add("sliding"); clearTimeout(squish); squish = setTimeout(() => dock.classList.remove("sliding"), 230); } dock.style.setProperty("--k", k); dockLinks.forEach((a, j) => { a.classList.toggle("on", j === k); j === k ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current"); }); };
     const topOf = (el) => clamp(el.id === "m-home" ? 0 : el.getBoundingClientRect().top + scrollY, 0, R.scrollHeight - innerHeight);
     const jump = (y) => scrollTo({ top: y, behavior: "instant" });
     const stop = () => { cancelAnimationFrame(moving); moving = 0; };
@@ -123,7 +124,7 @@
     $$(".rv").forEach((el, i) => { el.style.transitionDelay = (i % 3) * 70 + "ms"; rio.observe(el); });
 
     /* ---------- liquid glass on the header and the dock (liquidGlass is in index.js) ---------- */
-    if (typeof liquidGlass === "function") { liquidGlass($(".m-bar"), "lg-mbar", 1.8); liquidGlass(dock, "lg-mdock", 7); }
+    if (typeof liquidGlass === "function") { liquidGlass($(".m-bar"), "lg-mbar"); liquidGlass(dock, "lg-mdock", { blur: 3, bend: -110 }); }
 
     /* ---------- clock + typed role ---------- */
     const clk = () => ($("#m-clock").textContent = "Antipolo " + new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Manila" }).format(new Date())); clk(); setInterval(clk, 15000);
@@ -235,187 +236,24 @@
     $("#m-copy").onclick = copy;
 
     /* =====================================================================
-       ID LANYARD
-       The strap is a chain of points; the card is a solid body hanging from it.
-       Drag it anywhere, throw it, flick it sideways to spin it, tap to flip.
+       ID LANYARD: the 3D scene and its physics live in lanyard.js,
+       the pictures on both sides of the card in card-art.js.
+       They are only downloaded on phones.
        ===================================================================== */
     function lanyard() {
-      const st = $("#m-stage"), cv = $("#m-cv"), g = cv.getContext("2d"), box = $("#m-id"), card = $("#m-card");
-      const front = $(".id-front", card), back = $(".id-back", card), hw = $(".id-hw", box);
-      const TEXT = "JOSHUA LABRADOR";            // printed on the strap
-      const CW = 236, CH = 348, TOP = 40;        // card size, gap between strap end and card
-      const COM = TOP + CH / 2;                  // strap end -> centre of the card
-      const LEN = 200, N = 10, REST = 142;       // strap length, links, resting height of the strap end
-      const SUB = 12, GRAV = 2600;               // physics steps per frame, gravity
-      const WB = 1 / 7, WI = 1 / (7 * (CW * CW + CH * CH) / 12), WP = 1; // inverse mass / inertia
-
-      const A = { x: 195, y: REST - LEN };       // where the strap hangs from (above the screen)
-      const B = { x: 0, y: 0, a: 0, px: 0, py: 0, pa: 0 };
-      const P = Array.from({ length: N }, () => ({ x: 0, y: 0, px: 0, py: 0 }));
-      let s = 1, W = 390, H = 570, lastW = 0, len = LEN, drag = null, running = false, visible = true;
-      let yaw = rm ? 0 : -2.6, yawV = 0, face = 0, pitch = 0, vx = 0, vy = 0, tiltX = 0, acc = 0, last = performance.now();
-
-      const rot = (x, y, a) => { const c = Math.cos(a), n = Math.sin(a); return { x: x * c - y * n, y: x * n + y * c }; };
-      const end = () => { const r = rot(0, -COM, B.a); return { x: B.x + r.x, y: B.y + r.y, r }; };
-
-      function place(jx, jy, a) {
-        const r = rot(0, COM, a);
-        B.a = B.pa = a; B.x = B.px = jx + r.x; B.y = B.py = jy + r.y;
-        P.forEach((p, i) => { p.x = p.px = A.x + (jx - A.x) * (i / N); p.y = p.py = A.y + (jy - A.y) * (i / N); });
-      }
-      function size() {
-        if (innerWidth === lastW) return; // ignore the resize caused by the browser's address bar
-        const first = !lastW; lastW = innerWidth;
-        s = clamp(Math.min(innerWidth / 390, innerHeight / 750), 0.74, 1);
-        st.style.height = Math.round(572 * s) + "px";
-        W = st.clientWidth / s; H = st.clientHeight / s; A.x = W / 2;
-        const d = Math.min(devicePixelRatio || 1, 2), ch = st.clientHeight + 260;
-        cv.style.height = ch + "px"; cv.width = st.clientWidth * d; cv.height = ch * d; g.setTransform(d * s, 0, 0, d * s, 0, 0);
-        if (rm) place(A.x, REST, 0); else if (first) place(A.x + 125, 10, -0.55); else place(A.x, REST, 0);
-        render(0);
-      }
-
-      /* push a point of the card (offset r from its centre) along n */
-      function pushBody(r, nx, ny, amount) {
-        const rn = r.x * ny - r.y * nx;
-        B.x += WB * amount * nx; B.y += WB * amount * ny; B.a += WI * rn * amount;
-      }
-      const weight = (r, nx, ny) => { const rn = r.x * ny - r.y * nx; return WB + WI * rn * rn; };
-
-      function step(h) {
-        for (let i = 1; i < N; i++) {
-          const p = P[i], ux = (p.x - p.px) * 0.996, uy = (p.y - p.py) * 0.996;
-          p.px = p.x; p.py = p.y; p.x += ux + tiltX * h * h * 0.5; p.y += uy + GRAV * h * h;
-        }
-        const ux = clamp((B.x - B.px) * 0.9986, -16, 16), uy = clamp((B.y - B.py) * 0.9986, -16, 16), ua = clamp((B.a - B.pa) * (drag ? 0.99 : 0.9978), -0.09, 0.09);
-        B.px = B.x; B.py = B.y; B.pa = B.a;
-        B.x += ux + tiltX * h * h; B.y += uy + GRAV * h * h; B.a += ua;
-
-        const seg = len / N; P[0].x = A.x; P[0].y = A.y;
-        for (let it = 0; it < 2; it++) {
-          for (let i = 0; i < N - 1; i++) { // strap links
-            const a = P[i], b = P[i + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, k = (d - seg) / d * (d > seg ? 1 : 0.25);
-            const wa = i ? 0.5 : 0, wb = i ? 0.5 : 1;
-            a.x += dx * k * wa; a.y += dy * k * wa; b.x -= dx * k * wb; b.y -= dy * k * wb;
-          }
-          const q = P[N - 1], j = end(), dx = j.x - q.x, dy = j.y - q.y, d = Math.hypot(dx, dy) || 1; // last link -> card
-          if (d > seg) { const nx = dx / d, ny = dy / d, L = -(d - seg) / (weight(j.r, nx, ny) + WP); pushBody(j.r, nx, ny, L); q.x -= WP * L * nx; q.y -= WP * L * ny; }
-          const e = end(), ex = e.x - A.x, ey = e.y - A.y, ed = Math.hypot(ex, ey) || 1; // strap cannot stretch
-          if (ed > len) {
-            const nx = ex / ed, ny = ey / ed, x0 = B.x, y0 = B.y, a0 = B.a;
-            pushBody(e.r, nx, ny, -(ed - len) / weight(e.r, nx, ny));
-            // after a hard pull the strap returns without launching the card
-            if (!drag && len > LEN + 1) { B.px += (B.x - x0) * 0.82; B.py += (B.y - y0) * 0.82; B.pa += (B.a - a0) * 0.82; }
-          }
-        }
-        for (let i = 1; i < N - 1; i++) { const p = P[i]; p.x += ((P[i - 1].x + P[i + 1].x) / 2 - p.x) * 0.02; p.y += ((P[i - 1].y + P[i + 1].y) / 2 - p.y) * 0.02; }
-        if (drag) { // the finger wins
-          const r = rot(drag.lx, drag.ly, B.a), dx = drag.x - (B.x + r.x), dy = drag.y - (B.y + r.y), d = Math.hypot(dx, dy);
-          if (d > 0.01) pushBody(r, dx / d, dy / d, (d * 0.35) / weight(r, dx / d, dy / d));
-        }
-      }
-
-      function drawStrap() {
-        g.clearRect(0, 0, W, H + 400);
-        const j = end(), pts = [{ x: A.x, y: A.y - 60 }, ...P, j], line = [];
-        for (let i = 1; i < pts.length - 1; i++) { // smooth curve through the points
-          const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
-          for (let k = 0; k < 6; k++) {
-            const t = k / 6, t2 = t * t, t3 = t2 * t;
-            const f = (a, b, c, d) => 0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (3 * b - a - 3 * c + d) * t3);
-            line.push({ x: f(p0.x, p1.x, p2.x, p3.x), y: f(p0.y, p1.y, p2.y, p3.y) });
-          }
-        }
-        line.push({ x: j.x, y: j.y });
-        let total = 0;
-        line.forEach((p, i) => { if (i) total += Math.hypot(p.x - line[i - 1].x, p.y - line[i - 1].y); p.l = total; });
-        const flat = Math.max(0.22, Math.abs(Math.cos(yaw)));
-        line.forEach((p, i) => { // the strap twists together with the card
-          const a = line[Math.max(0, i - 1)], b = line[Math.min(line.length - 1, i + 1)], d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-          p.nx = -(b.y - a.y) / d; p.ny = (b.x - a.x) / d;
-          const u = total ? p.l / total : 0, k = u > 0.5 ? Math.pow((u - 0.5) / 0.5, 1.6) : 0;
-          p.t = Math.sin(Math.PI * Math.min(1, k)) ; p.w = 28 * (1 - (1 - flat) * (0.85 * Math.sin(Math.PI * k * 0.85) + 0.15 * k));
+      const st = $("#m-stage"), born = performance.now();
+      const add = (src) => new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.append(s); });
+      add("card-art.js")
+        .then(() => add("lanyard.js"))
+        .then(() => window.Lanyard.mount(st, { art: window.ID_ART, reducedMotion: rm, buzz, delay: Math.max(0, 1350 - (performance.now() - born)) }))
+        .then((api) => (window.idCard = api))
+        .catch((err) => { // no 3D on this phone: show the card as a picture
+          console.warn("3D ID card unavailable:", err);
+          st.querySelector("canvas")?.remove();
+          if (!window.ID_ART) return;
+          const img = new Image(); img.className = "id-still"; img.alt = ""; img.src = window.ID_ART.front;
+          st.style.height = ""; st.append(img);
         });
-        const side = (m) => line.map((p) => [p.x + p.nx * p.w * m, p.y + p.ny * p.w * m]);
-        const trace = (a, move = true) => a.forEach(([x, y], i) => (i || !move ? g.lineTo(x, y) : g.moveTo(x, y)));
-        g.beginPath(); trace(side(0.5)); trace(side(-0.5).reverse(), false); g.closePath();
-        g.save(); g.shadowColor = "rgba(0,0,0,.45)"; g.shadowBlur = 14; g.shadowOffsetY = 8; g.fillStyle = "#101116"; g.fill(); g.restore();
-        const stroke = (m, color, width, dash = []) => { g.beginPath(); trace(side(m)); g.strokeStyle = color; g.lineWidth = width; g.setLineDash(dash); g.stroke(); g.setLineDash([]); };
-        stroke(0.5, "rgba(150,160,185,.55)", 1); stroke(-0.5, "rgba(150,160,185,.35)", 1);
-        stroke(0.36, "rgba(255,255,255,.16)", 0.8, [3, 2]); stroke(-0.36, "rgba(255,255,255,.16)", 0.8, [3, 2]);
-        stroke(0.12, "rgba(255,255,255,.045)", 5);
-
-        g.font = "700 11.5px Geist, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#f4f5f8";
-        const widths = [...TEXT].map((c) => g.measureText(c).width + 0.9), tw = widths.reduce((a, b) => a + b, 0);
-        for (let from = total - tw - 20; from > -tw; from -= tw + 44) {
-          let at = from, i = 0;
-          [...TEXT].forEach((c, n) => {
-            const m = at + widths[n] / 2; at += widths[n];
-            if (m < 0) return;
-            while (i < line.length - 2 && line[i + 1].l < m) i++;
-            const p = line[i], q = line[i + 1], k = clamp((m - p.l) / (q.l - p.l || 1), 0, 1);
-            g.save(); g.translate(p.x + (q.x - p.x) * k, p.y + (q.y - p.y) * k); g.rotate(Math.atan2(q.y - p.y, q.x - p.x)); g.scale(1, p.w / 28); g.fillText(c, 0, 0); g.restore();
-          });
-        }
-      }
-
-      function render() {
-        drawStrap();
-        const j = end(), c = Math.cos(yaw);
-        box.style.transform = `translate3d(${(j.x * s - CW / 2).toFixed(2)}px,${(j.y * s).toFixed(2)}px,0) rotate(${B.a.toFixed(4)}rad) scale(${s})`;
-        card.style.transform = `rotateX(${pitch.toFixed(3)}rad) rotateY(${yaw.toFixed(3)}rad)`;
-        front.style.visibility = c > 0 ? "visible" : "hidden"; back.style.visibility = c > 0 ? "hidden" : "visible";
-        hw.style.transform = `scaleX(${(0.45 + 0.55 * Math.abs(c)).toFixed(3)})`;
-        card.style.setProperty("--gl", (50 + Math.sin(yaw) * 90 + B.a * 120).toFixed(1) + "%");
-      }
-
-      function frame(now) {
-        requestAnimationFrame(frame);
-        const dt = Math.min((now - last) / 1000, 0.05); last = now;
-        if (!running || (!visible && !drag) || document.hidden) return;
-        if (rm) return render();
-        acc += dt;
-        for (let n = 0; acc >= 1 / 60 && n < 4; n++, acc -= 1 / 60) {
-          len = drag ? drag.len : len + (LEN - len) * 0.09;
-          for (let i = 0; i < SUB; i++) step(1 / 60 / SUB);
-        }
-        vx += ((B.x - B.px) * SUB * 60 - vx) * 0.2; vy += ((B.y - B.py) * SUB * 60 - vy) * 0.2;
-        // 3D spin: a soft spring that brings the chosen side back to the front
-        const base = face * Math.PI, rest = base + Math.PI * 2 * Math.round((yaw - base) / (Math.PI * 2));
-        const aim = rest + (drag ? clamp(vx * 0.0011, -1.15, 1.15) : Math.sin(now / 1500) * 0.14 + clamp(vx * 0.0006, -0.5, 0.5));
-        yawV += ((aim - yaw) * 30 - yawV * 3.1) * dt; yaw += yawV * dt;
-        pitch += (clamp(-vy * 0.00022, -0.28, 0.28) - pitch) * 0.12;
-        render();
-      }
-
-      const point = (e) => { const r = st.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
-      const aimAt = (p) => { // keep the finger target within reach of the strap
-        const r = rot(drag.lx, drag.ly, B.a), e = rot(0, -COM, B.a), ex = p.x - r.x + e.x - A.x, ey = p.y - r.y + e.y - A.y, d = Math.hypot(ex, ey) || 1, k = Math.min(1, (LEN * 1.38) / d);
-        drag.x = p.x - ex * (1 - k); drag.y = p.y - ey * (1 - k); drag.len = clamp(d, LEN, LEN * 1.38);
-      };
-      box.addEventListener("pointerdown", (e) => {
-        e.preventDefault(); running = true; box.setPointerCapture(e.pointerId);
-        const p = point(e), l = rot(p.x - B.x, p.y - B.y, -B.a);
-        drag = { lx: l.x, ly: l.y, x: p.x, y: p.y, sx: p.x, sy: p.y, moved: 0, at: performance.now(), len: LEN }; aimAt(p);
-      });
-      box.addEventListener("pointermove", (e) => { if (!drag) return; const p = point(e); drag.moved = Math.max(drag.moved, Math.hypot(p.x - drag.sx, p.y - drag.sy)); aimAt(p); });
-      const flip = (dir) => { face ^= 1; if (rm) yaw = face * Math.PI; else yawV += dir * 5; buzz(12); };
-      box.addEventListener("pointerup", () => {
-        if (!drag) return; const d = drag; drag = null;
-        if (d.moved < 8 && performance.now() - d.at < 400) return flip(d.sx < B.x ? -1 : 1);
-        if (Math.abs(vx) > 700) yawV += clamp(vx * 0.009, -16, 16); // flick = spin
-        buzz(6);
-      });
-      box.addEventListener("pointercancel", () => (drag = null));
-      box.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(1); } });
-      // tilting the phone swings the card (where the browser allows it)
-      addEventListener("deviceorientation", (e) => { if (e.gamma == null) return; tiltX = Math.abs(e.gamma) < 4 ? 0 : clamp(e.gamma / 45, -1, 1) * GRAV * 0.32; });
-
-      new IntersectionObserver(([e]) => (visible = e.isIntersecting), { rootMargin: "0px 0px 200px 0px" }).observe(st);
-      addEventListener("resize", size); size();
-      setTimeout(() => { running = true; }, 1350);
-      document.fonts && document.fonts.ready.then(() => render());
-      requestAnimationFrame(frame);
     }
   }
 })();
